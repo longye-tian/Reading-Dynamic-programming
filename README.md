@@ -5,7 +5,7 @@
 - **Learning Objectives:**
   - Understand the basic concept of dynamic programming.
   - Comprehend the Bellman equation and its application to finite-horizon job search.
-  - Grasph the definitions related to stability and fixed point
+  - Grasp the definitions related to stability and fixed point
   - Solve the infinite job search problem
 
 ## Week 2: Operators and Fixed Points (June 17 - June 23, 2024)
