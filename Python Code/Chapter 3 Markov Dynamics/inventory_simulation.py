@@ -2,8 +2,8 @@
 #--------------------------------------------------------------------------------------------#
 #                Dynamic Programming by John Stachurski and Tom Sargent                      #
 #                                                                                            #
-#This code is used for Chapter 3 Markov Dynamics: Application: S-s dynamics                  #
-#Written by Longye Tian 22/06/2024                                                           #
+# This code is used for Chapter 3 Markov Dynamics: Application: S-s dynamics                 #
+# Written by Longye Tian 22/06/2024                                                          #
 #--------------------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------------------#
 
@@ -97,20 +97,19 @@ def compute_mc(inventory, d_max=110):
                 if h[0,d]==j:
                     P[i,j] += geom.pmf(d+1,p)          # add their pmf
     #mc = qe.MarkovChain(P, state_space)               # rowsum = 0.999 cannot use qe.MarkovChain
-    return P
+    P = P / P.sum(axis=1, keepdims=True)               # Normalize the rowsum to 1
+    mc = qe.MarkovChain(P,state_space)                 # obtain the MarkovChain object
+    return mc
 
 
 #--------------------------------------------------------------------------------------------#
 #                  Create a function to get the stationary distribution                      #
 #--------------------------------------------------------------------------------------------#
 
-def compute_stat_dist(inventory, iteration = 10_000):
-    P = compute_mc(inventory)                          # Get the transition matrix
-    P_stat = P**iteration                              # Iterate the transition matrix
-    ψ_stat = P_stat[0]                                 # The stationary distribution is the row of P
-    return ψ_stat
-                
-## Problem: As P obtained before has rowsum = 0.999, iteration leads to 0
-
+def compute_stationary_dist(inventory):
+    mc = compute_mc(inventory)                          # Get the MarkovChain object
+    ψ_stationary = mc.stationary_distributions[0]       # Get the stationary distribution
+    return ψ_stationary
+## Problem: As P obtained before without normalization has rowsum = 0.999, iteration leads to 0
 
      
