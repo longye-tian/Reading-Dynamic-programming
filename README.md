@@ -2,25 +2,42 @@
 
 ## Week 1: Introduction (June 10 - June 16, 2024)
 - **Reading:** Chapter 1 (Pages 1-41)
-- **Learning Objectives:**
-  - Understand the basic concept of dynamic programming.
-  - Comprehend the Bellman equation and its application to finite-horizon job search.
-  - Grasp the definitions related to stability and fixed point
-  - Solve the infinite job search problem
+- Key Concept:
+  - Basic Dynamic Programming Algorithm
+  - Banach's Contraction Mapping Theorem and Proof
+  - Neumann Series Lemma, Gelfand's formula
+  - Finite vs. Infinite job search model
+  - Algorithm for Value Function Iteration
+- Python Code
+  - Create namedtuple, use function to create model
+  - Successive approximation
+  - Greedy function
+  - value function iteration
+  - direct iteration 
+  - See details in job_search.py
 
 ## Week 2: Operators and Fixed Points (June 17 - June 23, 2024)
 - **Reading:** Chapter 2 (Pages 42-80)
-- **Learning Objectives:**
-  - Grasp the concepts of stability and fixed points in dynamic programming.
-  - Learn about conjugate maps and local stability.
-  - Appreciate the importance of gradient-based methods in dynamic programming.
+- Key Concepts:
+  - Hartman-Grobman Theorem
+  - Convergence rate and related proof
+  - Newton's fixed point method
+  - Partial order, order-preserving, property of sublattice, stochastic dominance
+  - Linear operator, equivalence with matrix, computation advantage
+  - Perron-Frobenius Theorem and Lemma
+  - Flatten a matrix
+  - Markov operator and its matrix representation
 
 ## Week 3: Markov Dynamics (June 24 - June 30, 2024)
 - **Reading:** Chapter 3 (Pages 81-104)
-- **Learning Objectives:**
-  - Understand Markov chains and their relevance to dynamic programming.
-  - Learn about stationarity and ergodicity and their significance.
-  - Model job search problems using Markov dynamics.
+- Key Concept:
+   - Markov chain, stationarity, irreducibility, ergodicity, monotonicity
+   - Approximation: Tauchen discretization
+   - Conditional Expectation, LIE, LTP
+- Code:
+   - QuantEcon MarkovChain packages: MarkovChain, Stationary distribution, simulate
+   - Ergodicity: calculate time average and compare to stationary distribution.
+   - See: inventory_simulation.py; day_laborer.py
 
 ## Week 4: Optimal Stopping (July 1 - July 7, 2024)
 - **Reading:** Chapter 4 (Pages 105-127)
