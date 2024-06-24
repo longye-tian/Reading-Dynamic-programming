@@ -3,6 +3,7 @@
 ## Week 1: Introduction (June 10 - June 16, 2024)
 - **Reading:** Chapter 1 (Pages 1-41)
 - Key Concept:
+  - For $a,b,c \in\mathbb{R}$, $|a\vee c - b\vee c|\le |a-b|$
   - Basic Dynamic Programming Algorithm
   - Banach's Contraction Mapping Theorem and Proof
   - Neumann Series Lemma, Gelfand's formula
