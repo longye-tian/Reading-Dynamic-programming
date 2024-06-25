@@ -4,7 +4,7 @@
 - **Reading:** Chapter 1 (Pages 1-41)
 - Key Concept:
   - For $a,b,c \in\mathbb{R}$, $|a\vee c - b\vee c|\le |a-b|$
-  - Basic Dynamic Programming Algorithm
+  - $T$ globally stable with fixed point $u^* $,If $T$ is invariant on a closed set $C$, $u^* \in C$
   - Banach's Contraction Mapping Theorem and Proof
   - Neumann Series Lemma, Gelfand's formula
   - Finite vs. Infinite job search model
@@ -43,6 +43,7 @@
 
 ## Week 4: Optimal Stopping (July 1 - July 7, 2024)
 - **Reading:** Chapter 4 (Pages 105-127)
+- If $e,c\in i\mathbb{R}^X$, $P$ monotone increasing, $v^* ,h^* \in i\mathbb{R}^X$
 - EXERCISE 4.1.13.
 - **Learning Objectives:**
   - Comprehend the concept of optimal stopping and its use in decision-making.
