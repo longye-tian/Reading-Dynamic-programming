@@ -41,7 +41,7 @@ def create_job_search_markov_model(n=200, m=3,ρ=0.9, ν=0.2, β=0.98, c=1.0):
 #--------------------------------------------------------------------------------------------#
 
 def Tauchen(job_search_markov):  
-    n,m,ρ,ν,β,c = job_search_markov                              # Unpack model parameters
+    n,m,ρ,ν,β,c = job_search_markov                            # Unpack model parameters
     σ_w = np.sqrt(ν**2/(1-ρ**2))                               # W's std
     W = np.linspace(-m*σ_w, m*σ_w, n)                          # State space by Tauchen
     s = (W[n-1]-W[0])/(n-1)                                    # gap between two states
