@@ -4,7 +4,7 @@
 - **Reading:** Chapter 1 (Pages 1-41)
 - Key Concept:
   - For $a,b,c \in\mathbb{R}$, $|a\vee c - b\vee c|\le |a-b|$
-  - Basic Dynamic Programming Algorithm
+  - $T$ globally stable with fixed point $u^* $,If $T$ is invariant on a closed set $C$, $u^* \in C$
   - Banach's Contraction Mapping Theorem and Proof
   - Neumann Series Lemma, Gelfand's formula
   - Finite vs. Infinite job search model
