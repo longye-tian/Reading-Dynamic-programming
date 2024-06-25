@@ -20,6 +20,7 @@
 ## Week 2: Operators and Fixed Points (June 17 - June 23, 2024)
 - **Reading:** Chapter 2 (Pages 42-80)
 - Key Concepts:
+  - $T$ is globally stable and $T$ dominates $S$ implies the unique fixed point of $T$ dominates any fixed point of $S$.
   - Hartman-Grobman Theorem
   - Convergence rate and related proof
   - Newton's fixed point method
@@ -42,6 +43,7 @@
 
 ## Week 4: Optimal Stopping (July 1 - July 7, 2024)
 - **Reading:** Chapter 4 (Pages 105-127)
+- EXERCISE 4.1.13.
 - **Learning Objectives:**
   - Comprehend the concept of optimal stopping and its use in decision-making.
   - Explore examples of optimal stopping in firm valuation with exit.
