@@ -20,6 +20,7 @@
 ## Week 2: Operators and Fixed Points (June 17 - June 23, 2024)
 - **Reading:** Chapter 2 (Pages 42-80)
 - Key Concepts:
+  - $T$ is globally stable and $T$ dominates $S$ implies the unique fixed point of $T$ dominates any fixed point of $S$.
   - Hartman-Grobman Theorem
   - Convergence rate and related proof
   - Newton's fixed point method
