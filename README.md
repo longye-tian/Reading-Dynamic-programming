@@ -21,6 +21,7 @@
 - **Reading:** Chapter 2 (Pages 42-80)
 - Key Concepts:
   - $T$ is globally stable and $T$ dominates $S$ implies the unique fixed point of $T$ dominates any fixed point of $S$.
+  - $|\max_{z\in D}f(z)-\max_{z\in D}g(z)|\le \max\{z\in D\}|f(z)-g(z)|$
   - Hartman-Grobman Theorem
   - Convergence rate and related proof
   - Newton's fixed point method
