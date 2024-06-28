@@ -59,7 +59,7 @@ def reservation_wage(model):
     S = np.zeros((ts_length+1,n))                      # Initialize the maximum values
     H[ts_length] = c                                   # Last continuation value is c
     R[ts_length] = c                                   # Last rw is c
-    S[T,:] = np.maximum(c, w_vals)                     
+    S[ts_length,:] = np.maximum(c, w_vals)                     
     for t in range(1, ts_length+1):                    # Assume uniform distribution
         H[ts_length-t] = c + β * np.mean(S[ts_length-t+1,:]) 
         df = np.geomspace(1, β**t, t+1)                # denominator
@@ -139,11 +139,11 @@ def value_function_iteration (model):
 
 
 #--------------------------------------------------------------------------------------------#
-#                                Direct computation operator                                 #
+#                                CONTINUATION VALUE operator                                 #
 #--------------------------------------------------------------------------------------------#
 
 def g (h,                                              #input reservation wage
-       model                                           # Model parameters
+       model):                                         # Model parameters
     c, w_vals, n, β, ts_length = model                 # Input the model parameters
     return c + β * np.mean(np.maximum(w_vals/(1-β), h))
        
@@ -151,11 +151,11 @@ def g (h,                                              #input reservation wage
 #                             Compute CV directly algorithm                                  #
 #--------------------------------------------------------------------------------------------#
 
-def direct_iteration (model):
+def continuation_value_iteration (model):
     c, w_vals, n, β, ts_length = model                 # Input the model parameters
     h_init = 0                                         # inital guess of CV
     h_star = successive_approx(g, h_init, model)       # succesive approximation on g
     v_star = np.maximum(w_vals/(1-β),h_star)           
     return v_star, h_star
        
-# direct_iteration(model)
+# continuation_value_iteration(model)
