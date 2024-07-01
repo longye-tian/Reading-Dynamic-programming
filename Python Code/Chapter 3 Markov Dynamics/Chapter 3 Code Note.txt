@@ -1,0 +1,54 @@
+For job_search_separation.py:
+
+- job_search_separation.py: the original version, it works but takes forever.
+
+- njit_job_separation.py: using numba
+
+
+
+------------------------------
+
+Note:
+
+1. Numba doesn't support scipy which is fair, so we need to create the normal cdf using np way. To create the approximation for standard normal cdf, we use the Abramowitz & Stegun (1964) approximation method: 
+
+Abramowitz & Stegun (1964) Approximation for the Normal CDF
+
+Overview
+
+The Abramowitz & Stegun approximation is a widely used method for calculating the cumulative distribution function (CDF) of the standard normal distribution. Published in their "Handbook of Mathematical Functions" (1964), this approximation provides an excellent balance between computational efficiency and accuracy.
+
+For the standard normal CDF, denoted as Φ(x), the approximation is:
+
+Φ(x) ≈ 1 - (a₁t + a₂t² + a₃t³ + a₄t⁴ + a₅t⁵)e^(-x²/2) for x > 0
+
+Where:
+- t = 1 / (1 + px)
+- p = 0.2316419
+- a₁ = 0.31938153
+- a₂ = -0.356563782
+- a₃ = 1.781477937
+- a₄ = -1.821255978
+- a₅ = 1.330274429
+
+For x ≤ 0, we use the property: Φ(-x) = 1 - Φ(x)
+
+Accuracy: This approximation is accurate to about 7-8 decimal places.
+Efficiency: It avoids complex numerical integration or infinite series calculations.
+Simplicity: The formula uses only basic arithmetic operations and one exponential function.
+
+
+--------------------------------
+
+Note continued:
+
+2. njit does not support np.matmul() (I probably should not use this at first), so I changed that to P@v
+
+3. If we plot the reservation direction by iterating 10 times, it costs 10 seconds. If we njit the single procedure, it still takes the same amount of time. 
+
+
+-------------
+
+QUESTIONS:
+
+1. @njit value_function_iteration or not, seems not very different
