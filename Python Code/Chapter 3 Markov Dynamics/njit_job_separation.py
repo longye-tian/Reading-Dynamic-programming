@@ -34,7 +34,7 @@ Job_Search_Separation = namedtuple("job_search_separation",
                                 "c"                            # unemployment compensation
                                ))      
 
-def create_job_search_separation_model(n=200, m=3,ρ=0.9, ν=0.2, β=0.98,α=0.1,c=1.0):
+def create_job_search_separation_model(n=200, m=10,ρ=0.9, ν=0.2, β=0.98,α=0.1,c=1.0):
     return Job_Search_Separation(n=n,m=m,ρ=ρ, ν=ν, β=β, α=α,c=c)
 
 
@@ -162,8 +162,8 @@ def plot_value_stopping_continue (job_search_separation):
     v_star, σ_star = value_function_iteration(job_search_separation) 
     h = c + β * (P@v_star)                                     # Continuation value
     s = (1/(1-β*(1-α))) * (W+α*β*(P@v_star))                   # Stopping value
-    plt.plot(W, h, label='Continuation Value')
-    plt.plot(W, s, label='Stopping Value')
+    plt.plot(W, h, linewidth=3, linestyle='--', color='blue', alpha=0.3,label='Continuation Value')
+    plt.plot(W, s, linewidth=3, linestyle='--', color='red', alpha=0.3,label='Stopping Value')
     plt.plot(W, v_star, label='Value function')
     plt.legend()
     plt.show()
@@ -204,7 +204,7 @@ def reservation_wage(job_search_separation):
                 return W[index]
              
 
-def reservation_separation_version_2(α_min=0,α_max=1,steps=10):
+def reservation_separation_version_2(α_min=0,α_max=1,steps=20):
     A = np.linspace(α_min,α_max,steps)                         # alpha space
     Σ = np.zeros(steps)                                        # Initialize Policies
     for i in range(steps):
@@ -224,7 +224,8 @@ start_time = time.time()
 
 
 job_search_separation = create_job_search_separation_model()
-reservation_separation_version_2()
+plot_value_stopping_continue (job_search_separation)
+reservation_separation ()
 
 
 #-------------------------------------------------------------------------------------------#
