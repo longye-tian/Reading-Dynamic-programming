@@ -113,7 +113,7 @@ def Tauchen(saving_mdp):
 @njit
 def u(c, saving_mdp):
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
-    return (c**(1-γ))/(1-γ)
+    return ((c**(1-γ)))/(1-γ)
 
 #--------------------------------------------------------------------------------------------#
 #                                   BELLMAN EQUATION FOR V                                   #
@@ -138,6 +138,7 @@ def B(v, saving_mdp):
 # saving_mdp = create_saving_mdp_model()
 # v = np.zeros((200,5))
 # B(v, saving_mdp)
+#σ = get_greedy(v, saving_mdp)
 
 #---------------------------------------------------------------------------------------------#
 #                                     Greedy Policy                                           #
@@ -203,6 +204,51 @@ def successive_approx (T,                                        # A callable op
     return v
 
     
+#--------------------------------------------------------------------------------------------#
+#                                   POLICY OPERATOR                                          #
+#--------------------------------------------------------------------------------------------#
+
+
+@njit
+def T_σ(v,σ,saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+    Σ = np.empty_like(σ)
+    for i in range(w_size):
+        for j in range(y_size):
+           Σ[i,j] = W[σ[i,j]]
+    W = np.reshape(W, (w_size, 1))
+    Y = np.reshape(Y, (1, y_size))
+    c = W + Y - (Σ/R)
+
+    EV = np.empty((w_size, y_size))
+    for i in np.arange(w_size):
+        for j in np.arange(y_size):
+            EV[i,j] = np.sum(np.array([v[σ[i,j],k] *  Q[j,k] for k in np.arange(y_size)]))
+
+    return np.where(c>0, u(c, saving_mdp) + β * EV, -np.inf)
+
+
+
+
+#---------------------------------------------------------------------------------------------#
+#                                  POLICY EVALUATION --HPI                                    #
+#---------------------------------------------------------------------------------------------#
+
+def get_value(σ, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+    
+    
+
+
+
+#---------------------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------#
+#                                      ALGORITHMS                                             #
+#---------------------------------------------------------------------------------------------#
+#---------------------------------------------------------------------------------------------#
+
 
 #---------------------------------------------------------------------------------------------#
 #                                VALUE FUNCTION ITERATION                                     #
@@ -214,27 +260,41 @@ def value_function_iteration(saving_mdp):
     v_star = successive_approx(T, v_init, saving_mdp)
     σ_star = get_greedy(v_star, saving_mdp)
     return v_star,  σ_star
-#--------------------------------------------------------------------------------------------#
-#                                   POLICY OPERATOR                                          #
-#--------------------------------------------------------------------------------------------#
 
-@njit
-def T_σ(v,σ,saving_mdp):
-    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
-    new_v = np.empty_like(v)
-    Y,Q = Tauchen(saving_mdp)
-    for i in np.arange(len(W)):
-        for j in np.arange(y_size):
-            new_v[i,j]= B(i,j,σ[i,j],v,saving_mdp)
-    return new_v
+
 
 #---------------------------------------------------------------------------------------------#
-#                                  POLICY EVALUATION                                          #
+#                              OPTIMISTIC POLICY ITERATION                                    #
 #---------------------------------------------------------------------------------------------#
 
-@njit
-def get_value(σ, saving_mdp):
+def optimistic_policy_iteration(saving_mdp,
+                                M=1,
+                                tol=1e-6, 
+                                max_iter=10_000,
+                                print_step = 25):
+    
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    v = np.zeros((w_size, y_size))
+    error = tol+1
+    k = 0 
+
+    while error > tol and k < max_iter:
+        last_v = v
+        σ = get_greedy(last_v,saving_mdp)
+        for i in range(M):
+            v = T_σ(v, σ, saving_mdp)
+        error = np.max(np.abs(last_v-v))
+        if k % print_step == 0:                                   
+            print(f"Completed iteration {k} with error {error}.")
+        k += 1
+    if error <= tol:                                    
+        print(f"Terminated successfully in {k} interations.")
+        v_star_opi = v
+        σ_star_opi = get_greedy(v_star_opi, saving_mdp)
+    else:     
+        print("Warning: hit iteration bound.")
+    return v_star_opi, σ_star_opi
+
 
 
 #---------------------------------------------------------------------------------------------#
@@ -247,8 +307,8 @@ start_time = time.time()
 
 
 saving_mdp = create_saving_mdp_model()
-v_star,  σ_star = value_function_iteration(saving_mdp)
-
+v_star_opi, σ_star_opi = optimistic_policy_iteration(saving_mdp)
+print(v_star_opi)
 
 
 #-------------------------------------------------------------------------------------------#

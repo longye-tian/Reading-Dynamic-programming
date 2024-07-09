@@ -39,3 +39,24 @@ numba.njit decorator note:
 
 2. Be careful when using a list comprehension inside another function, although it looks more compact, it can trigger numba njit issues. When using list comprehension, we need to make sure we add np.array to make it into np.array type.
 
+3. Numba does not support multi-dimensional array indexing. 
+
+
+--------------------
+
+Misc note:
+
+0. When using parameters, be careful about the name, the m for Tauchen and OPI should use different m.
+
+
+
+
+
+
+
+
+
+
+
+
+
