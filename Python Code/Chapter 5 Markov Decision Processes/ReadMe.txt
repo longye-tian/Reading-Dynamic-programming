@@ -46,8 +46,10 @@ numba.njit decorator note:
 
 Misc note:
 
-0. When using parameters, be careful about the name, the m for Tauchen and OPI should use different m.
+0. When using parameters, be careful about the name, the m for Tauchen and OPI should use different m.\
 
+1. when using np.empty or np.empty_like, be careful, as np.empty(a), only supports when a has small dimensions.
+The marginal benefit of using np.empty is small, just use np.zeros
 
 
 

@@ -18,6 +18,8 @@ from collections import namedtuple
 import matplotlib.pyplot as plt
 from numba import njit                                       
 import time
+from scipy.sparse.linalg import bicgstab
+from scipy.sparse.linalg import LinearOperator
 
 
 # --------------------------------------------------------------------------------------------#
@@ -208,12 +210,17 @@ def successive_approx (T,                                        # A callable op
 #                                   POLICY OPERATOR                                          #
 #--------------------------------------------------------------------------------------------#
 
-
+# for loop to be compatible with numba
+# The problem is in np.empty_like 
+# If we initialize Σ = np.zeros((w_size, y_size))
 @njit
 def T_σ(v,σ,saving_mdp):
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
     Y,Q = Tauchen(saving_mdp)
-    Σ = np.empty_like(σ)
+    
+    # Σ = np.empty_like(σ)
+    Σ = np.zeros((w_size,y_size))
+    
     for i in range(w_size):
         for j in range(y_size):
            Σ[i,j] = W[σ[i,j]]
@@ -229,20 +236,130 @@ def T_σ(v,σ,saving_mdp):
     return np.where(c>0, u(c, saving_mdp) + β * EV, -np.inf)
 
 
+# multi-dimensional indexing without numba works
+
+def T_σ_vec(v,σ,saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+    Σ = W[σ]
+    W = np.reshape(W, (w_size, 1))
+    Y = np.reshape(Y, (1, y_size))
+    c = W + Y - (Σ/R)
+
+    V = v[σ]
+    Q = np.reshape(Q, (1,y_size,y_size))
+    EV = np.sum(V * Q, axis=-1)
+    
+    return np.where(c>0, u(c, saving_mdp) + β * EV, -np.inf)
+
+
+#---------------------------------------------------------------------------------------------#
+#                           COMPUTE REWARD AND REWARD OPERATOR  --- HPI                       #
+#---------------------------------------------------------------------------------------------#
+
+def compute_r_σ(σ, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+
+    Σ = W[σ]
+    W = np.reshape(W, (w_size, 1))
+    Y = np.reshape(Y, (1, y_size))
+    c = W + Y - (Σ/R)
+    r_σ = np.where(c>0, u(c, saving_mdp), -np.inf)
+    return r_σ
+
+
+def R_σ(v, σ, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+    σ = np.reshape(σ, (w_size, y_size,1))
+    V = v[σ]
+    Q = np.reshape(Q, (1,y_size,y_size))
+    EV = np.sum(V * Q, axis=-1)
+    return v - β * EV
 
 
 #---------------------------------------------------------------------------------------------#
 #                                  POLICY EVALUATION --HPI                                    #
 #---------------------------------------------------------------------------------------------#
 
+# use bicgstab to get value
+
+def get_value_bicgstab(σ, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    r_σ = compute_r_σ(σ, saving_mdp)
+    def _R_σ(v):
+        return R_σ(v, σ, saving_mdp)
+    
+    A = LinearOperator((w_size * y_size, w_size * y_size), matvec=_R_σ)
+    return bicgstab(A, r_σ)[0]
+
+
+# use normal way to get value
+
 def get_value(σ, saving_mdp):
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
     Y,Q = Tauchen(saving_mdp)
+    Σ = W[σ]
+    W = np.reshape(W, (w_size, 1))
+    Y = np.reshape(Y, (1, y_size))
+    c = W + Y - (Σ/R)
+    r_σ = np.where(c>0, u(c, saving_mdp), -np.inf)
+    x_size = w_size * y_size
+    P_σ = np.zeros((w_size,y_size,w_size,y_size))
+    for i in np.arange(w_size):
+        for j in np.arange(y_size):
+            for k in np.arange(y_size):
+                P_σ[i,j,σ[i,j],k] = Q[j,k]
+
+    r_σ = np.reshape(r_σ, (x_size,1))
+    P_σ = np.reshape(P_σ, (x_size,x_size))
+    I = np.eye(x_size)
+    v_σ = np.linalg.solve((I-β*P_σ), r_σ)
+    v_σ = np.reshape(v_σ, (w_size, y_size))
+    
+    return v_σ
+
+
+# not working without using multi-indexing 
+# solved, this is due to np.empty_like, avoiding using this function, just use np.zeros
+@njit
+def get_value_not_working_later_resolved(σ, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    Y,Q = Tauchen(saving_mdp)
+
+    # not working part
+    #Σ = np.empty_like(σ)
+    #for i in range(w_size):
+    #   for j in range(y_size):
+    #      Σ[i,j] = W[σ[i,j]]
+
+    # Solved: using np.zeros, will work
+    Σ = np.zeros((w_size,y_size))
+    for i in range(w_size):
+      for j in range(y_size):
+          Σ[i,j] = W[σ[i,j]]
+    
+    W = np.reshape(W, (w_size, 1))
+    Y = np.reshape(Y, (1, y_size))
+    c = W + Y - (Σ/R)
+    r_σ = np.where(c>0, u(c, saving_mdp), -np.inf)
+    x_size = w_size * y_size
+    P_σ = np.zeros((w_size,y_size,w_size,y_size))
+    for i in np.arange(w_size):
+        for j in np.arange(y_size):
+            for k in np.arange(y_size):
+                P_σ[i,j,σ[i,j],k] = Q[j,k]
+
+    r_σ = np.reshape(r_σ, (x_size,1))
+    P_σ = np.reshape(P_σ, (x_size,x_size))
+    I = np.eye(x_size)
+    v_σ = np.linalg.solve((I-β*P_σ), r_σ)
+    
+    return np.reshape(v_σ, (w_size,y_size))
     
     
-
-
-
+    
 #---------------------------------------------------------------------------------------------#
 #---------------------------------------------------------------------------------------------#
 #                                      ALGORITHMS                                             #
@@ -267,11 +384,15 @@ def value_function_iteration(saving_mdp):
 #                              OPTIMISTIC POLICY ITERATION                                    #
 #---------------------------------------------------------------------------------------------#
 
+# Currently OPI does not converge if we use T_σ (for loops indexing with numba)
+
+# OPI converges if we use T_σ_vec (multi-dimensional indexing without numba)
+
 def optimistic_policy_iteration(saving_mdp,
-                                M=1,
+                                M=100,
                                 tol=1e-6, 
                                 max_iter=10_000,
-                                print_step = 25):
+                                print_step=25):
     
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
     v = np.zeros((w_size, y_size))
@@ -282,7 +403,7 @@ def optimistic_policy_iteration(saving_mdp,
         last_v = v
         σ = get_greedy(last_v,saving_mdp)
         for i in range(M):
-            v = T_σ(v, σ, saving_mdp)
+            v = T_σ_vec(v, σ, saving_mdp)
         error = np.max(np.abs(last_v-v))
         if k % print_step == 0:                                   
             print(f"Completed iteration {k} with error {error}.")
@@ -296,7 +417,34 @@ def optimistic_policy_iteration(saving_mdp,
     return v_star_opi, σ_star_opi
 
 
+#---------------------------------------------------------------------------------------------#
+#                                HOWARD POLICY ITERATIONS                                     #
+#---------------------------------------------------------------------------------------------#
 
+def howard_policy_iteration(saving_mdp, 
+                            tol=1e-6, 
+                            max_iter=10_000, 
+                            print_step=25):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
+    v = np.zeros((w_size, y_size))
+    error = 1 + tol
+    k=0
+    while error > tol and k < max_iter:
+        σ = get_greedy(v, saving_mdp)
+        v_σ = get_value(σ, saving_mdp)
+        error = np.max(np.abs(v_σ-v))
+        v = v_σ
+        if k % print_step == 0:                                   
+            print(f"Completed iteration {k} with error {error}.")
+        k += 1
+    if error <= tol:
+        print(f"Terminated successfully in {k} interations.")
+        v_star_hpi = v
+        σ_star_hpi = get_greedy(v_star_hpi, saving_mdp)
+    else:
+        print("Warning: hit iteration bound.")
+    return v_star_hpi, σ_star_hpi
+        
 #---------------------------------------------------------------------------------------------#
 #                                         PLAYGROUND                                          #
 #---------------------------------------------------------------------------------------------#
@@ -307,8 +455,9 @@ start_time = time.time()
 
 
 saving_mdp = create_saving_mdp_model()
-v_star_opi, σ_star_opi = optimistic_policy_iteration(saving_mdp)
-print(v_star_opi)
+#v_star_opi, σ_star_opi = optimistic_policy_iteration(saving_mdp)
+
+v_star_hpi, σ_star_hpi = howard_policy_iteration(saving_mdp)
 
 
 #-------------------------------------------------------------------------------------------#
