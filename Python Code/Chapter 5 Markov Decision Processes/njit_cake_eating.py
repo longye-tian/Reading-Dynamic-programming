@@ -124,19 +124,13 @@ def u(c, saving_mdp):
 @njit
 def B(v, saving_mdp):
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
-    Y,Q = Tauchen(saving_mdp)
     
-    W = np.reshape(W, (w_size, 1, 1))
-    Y = np.reshape(Y, (1, y_size, 1))
-    WP = np.reshape(W, (1, 1, w_size))
+    W = np.reshape(W, (w_size, 1))
+    WP = np.reshape(W, (1, w_size))
+    c = W-(WP/R)
+
     
-    v = np.reshape(v, (1, 1, w_size, y_size))
-    Q = np.reshape(Q, (1, y_size, 1, y_size))
-    
-    c = W+Y-(WP/R)
-    EV = np.sum(v * Q, axis=-1)
-    
-    return np.where(c>0, u(c, saving_mdp) + β * EV, -np.inf)
+    return np.where(c>0, u(c, saving_mdp) + β * v, -np.inf)
 
 # saving_mdp = create_saving_mdp_model()
 # v = np.zeros((200,5))
@@ -163,8 +157,7 @@ def T(v, saving_mdp):
     w_size = new_B.shape[2]
     new_v = np.empty(new_B.shape[:2])
     for i in range(new_B.shape[0]):
-        for j in range(new_B.shape[1]):
-            new_v[i, j] = np.max(new_B[i, j, :])
+            new_v[i] = np.max(new_B[i,:])
     return new_v
 
 
@@ -374,7 +367,7 @@ def get_value_not_working_later_resolved(σ, saving_mdp):
 
 def value_function_iteration(saving_mdp):
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
-    v_init = np.zeros((w_size, y_size), dtype=np.float64)
+    v_init = np.zeros(w_size, dtype=np.float64)
     v_star = successive_approx(T, v_init, saving_mdp)
     σ_star = get_greedy(v_star, saving_mdp)
     return v_star,  σ_star
@@ -458,14 +451,8 @@ def wealth_simulation(saving_mdp,
                       random_state=0):
     
     R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
-    Y,Q = Tauchen(saving_mdp)
-    v_star_opi, σ_star_opi = optimistic_policy_iteration(saving_mdp)
+    v_star, σ_star = value_function_iteration(saving_mdp)
     T = np.arange(ts_length)
-
-    mc = qe.MarkovChain(Q, state_values=Y)
-    Y_seq = mc.simulate(ts_length=ts_length, random_state=random_state)
-    mc_index = qe.MarkovChain(Q, state_values=np.arange(y_size))
-    Y_index_seq = mc_index.simulate(ts_length=ts_length, random_state=random_state)
     
     W_seq = np.zeros((ts_length,1))
     W_seq[0] = w_init
