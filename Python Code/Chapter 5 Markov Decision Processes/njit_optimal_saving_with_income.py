@@ -161,7 +161,7 @@ def get_greedy(v, saving_mdp):
 def T(v, saving_mdp):
     new_B = B(v, saving_mdp)
     w_size = new_B.shape[2]
-    new_v = np.empty(new_B.shape[:2])
+    new_v = np.zeros(new_B.shape[:2])
     for i in range(new_B.shape[0]):
         for j in range(new_B.shape[1]):
             new_v[i, j] = np.max(new_B[i, j, :])

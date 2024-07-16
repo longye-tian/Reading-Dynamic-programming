@@ -52,7 +52,9 @@ Misc note:
 The marginal benefit of using np.empty is small, just use np.zeros
 
 
-
+2. When Tauchen outputs a Transition matrix with row sum not equal to one due to arounding error, we use
+P = P / P.sum(axis=1, keepdims=True)               # Normalize the rowsum to 1
+to normalize the row sum. 
 
 
 
