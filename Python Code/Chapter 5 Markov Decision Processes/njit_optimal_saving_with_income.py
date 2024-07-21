@@ -159,11 +159,11 @@ def get_greedy(v, saving_mdp):
 
 @njit
 def T(v, saving_mdp):
+    R, β, γ, W, w_size, ρ, ν, m, y_size = saving_mdp
     new_B = B(v, saving_mdp)
-    w_size = new_B.shape[2]
-    new_v = np.zeros(new_B.shape[:2])
-    for i in range(new_B.shape[0]):
-        for j in range(new_B.shape[1]):
+    new_v = np.zeros((w_size, y_size))
+    for i in range(w_size):
+        for j in range(y_size):
             new_v[i, j] = np.max(new_B[i, j, :])
     return new_v
 
@@ -229,7 +229,7 @@ def T_σ(v,σ,saving_mdp):
     Y = np.reshape(Y, (1, y_size))
     c = W + Y - (Σ/R)
 
-    EV = np.empty((w_size, y_size))
+    EV = np.zeros((w_size, y_size))
     for i in np.arange(w_size):
         for j in np.arange(y_size):
             EV[i,j] = np.sum(np.array([v[σ[i,j],k] *  Q[j,k] for k in np.arange(y_size)]))
