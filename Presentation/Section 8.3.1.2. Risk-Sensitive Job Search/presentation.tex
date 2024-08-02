@@ -1,0 +1,80 @@
+\documentclass[11pt,xcolor={dvipsnames},hyperref={pdftex,pdfpagemode=UseNone,hidelinks,pdfdisplaydoctitle=true},usepdftitle=false]{beamer}
+\usepackage{presentation}
+
+% Enter presentation title to populate PDF metadata:
+\hypersetup{pdftitle={Risk-Sensitive Job Search}}
+
+% Enter path to PDF file with figures:
+\newcommand{\pdf}{figures.pdf}
+
+\begin{document}
+
+% Enter title:
+\title{Risk-Sensitive Job Search}
+
+\information
+%
+% Enter URL to research paper (can be commented out):
+[https://github.com/longye-tian]
+%
+% Enter authors:
+{Longye Tian}
+%
+% Enter location and date (can be commented out):
+{QuantEcon -- July 2024}
+
+\frame{\titlepage}
+
+% Enter content of presentation:
+
+\begin{frame}
+\frametitle{Vanilla-Job Search Bellman Equation}
+
+Let $v^*(w)$ denote the maximum lifetime reward with current wage offer $w$.
+$$
+v (w) = \max\left\{\frac{w}{1-\beta}, h(w)\right\}
+$$
+
+\begin{itemize}
+\item Wage process $(W_t)$ is $P$-Markov on $\mathcal{W} \subset \mathbb{R}_+$\\
+\item Continuation value $h(w) =  c+\beta \sum_{w'\in \mathcal{W}} v(w') P(w,w')$
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{RDP Representation}
+Let
+\begin{itemize}
+\item $\Gamma (w) = A = \{0,1\}$
+\item $V = \mathbb{R}_+$
+\item $B(x,a,v) = a\cdot \frac{w}{1-\beta} + (1-a)\cdot h(w)$
+\end{itemize}
+
+There is no risk in present, risks are in the future
+
+$\implies$ We only need to change $h(w)$ to $(K_\theta h)(w)$.
+\end{frame}
+
+\begin{frame}
+\heading{Application}
+\end{frame}
+
+\begin{frame}
+\frametitle{Wage}
+Let the wage process follows 
+$$
+W_{t+1} = 0.9 W_t + 0.2 \varepsilon_{t+1}, \quad (\varepsilon_t)\sim_{IID} N(0,1)
+$$
+
+$\implies$
+
+$$
+(W_t) \sim_{IID} N\left(0, \frac{0.2^2}{1-0.9^2}\right)
+$$
+
+Recall we assume $\mathcal{W}\subset\mathbb{R}_+$
+
+\end{frame}
+
+
+\end{document}
